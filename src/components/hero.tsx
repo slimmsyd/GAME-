@@ -141,7 +141,25 @@ export function Hero() {
         }
     };
 
-    const handleYesClick = () => {
+    const handleYesClick = async () => {
+        // Send webhook data
+        try {
+            await fetch('https://oncode.app.n8n.cloud/webhook/dbeea0a0-6dbb-4493-871b-9da54725177e', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    selection: 'YES',
+                    activity: activities[currentActivityIndex],
+                    activityIndex: currentActivityIndex,
+                    timestamp: new Date().toISOString(),
+                }),
+            });
+        } catch (error) {
+            console.error('Failed to send webhook:', error);
+        }
+
         setShowSuccess(true);
     };
 
