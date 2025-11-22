@@ -145,29 +145,54 @@ export function Hero() {
 
     if (showSuccess) {
         return (
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-pink-950 dark:via-purple-950 dark:to-blue-950">
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", duration: 0.8 }}
-                    className="text-center space-y-6"
-                >
+            <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+                {/* Success Background Image */}
+                <div className="absolute inset-0 z-0">
                     <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                        initial={{ scale: 1.1, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="absolute inset-0"
                     >
-                        <Heart className="w-24 h-24 mx-auto text-pink-500 fill-pink-500" />
+                        <img
+                            src="/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (14).jpeg"
+                            alt="Celebration"
+                            className="w-full h-full object-cover opacity-60"
+                        />
                     </motion.div>
-                    <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500">
-                        Yay! 🎉
-                    </h1>
-                    <p className="text-2xl text-muted-foreground">
-                        I knew you'd say yes! Now let's plan the perfect hang out!
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                        (You tried to click "No" {attempts} times 😏)
-                    </p>
-                </motion.div>
+                    <div className="absolute inset-0 bg-black/60" />
+                </div>
+
+                <div className="container mx-auto px-4 z-10 relative text-center space-y-8">
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
+                        className="space-y-6"
+                    >
+                        <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ repeat: Infinity, duration: 2 }}
+                            className="inline-block"
+                        >
+                            <Heart className="w-20 h-20 text-white fill-white drop-shadow-2xl" />
+                        </motion.div>
+
+                        <div className="space-y-4">
+                            <h1 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-widest">
+                                It's a Date!
+                            </h1>
+                            <div className="w-16 h-[1px] bg-white/50 mx-auto" />
+                            <p className="text-xl md:text-2xl text-gray-200 uppercase tracking-wider font-light max-w-2xl mx-auto">
+                                {activities[currentActivityIndex]}
+                            </p>
+                        </div>
+
+                        <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 pt-8">
+                            Check your calendar
+                        </p>
+                    </motion.div>
+                </div>
             </section>
         );
     }
@@ -292,7 +317,7 @@ export function Hero() {
                         <div className="flex flex-row gap-8 justify-center items-center">
                             <Button
                                 onClick={handleYesClick}
-                                className="bg-transparent hover:bg-white/10 text-white border border-white/30 rounded-none px-8 py-6 text-xs uppercase tracking-[0.2em] transition-all hover:border-white"
+                                className="bg-transparent cursor-pointer hover:bg-white/10 text-white border border-white/30 rounded-none px-8 py-6 text-xs uppercase tracking-[0.2em] transition-all hover:border-white"
                             >
                                 Confirm
                             </Button>
