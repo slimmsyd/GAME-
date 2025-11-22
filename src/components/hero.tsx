@@ -238,7 +238,7 @@ export function Hero() {
                                             {activities[currentActivityIndex]}
                                         </span>
                                         <span className="text-[10px] uppercase tracking-[0.3em] text-white/60">
-                                            Directed by AI
+                                            Directed by Allah
                                         </span>
                                     </div>
                                 </motion.div>
