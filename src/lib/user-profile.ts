@@ -9,11 +9,11 @@ export const userProfile = {
   demographics: {
     age: 23,
     location: "DMV area (DC, Maryland, Virginia)",
-    identity: "Black woman",
+    identity: "Black woman, 23 year olds, Loves Fashion, Intelligent, Loves Black History, Loves Poetry",
   },
   interests: {
-    music: ["jazz", "hip hop", "R&B", "Afrobeats"],
-    beverages: ["white wine", "cocktails", "craft beer"],
+    music: ["jazz", "hip hop", "R&B", "Afrobeats", "classical" , "gospel"],
+    beverages: ["white wine", "cocktails", "lemon drop"],
     activities: [
       "museums and art galleries",
       "live music venues",
@@ -24,6 +24,9 @@ export const userProfile = {
       "food experiences",
       "nightlife",
       "outdoor activities",
+      "smoking weed",
+      "networking events",
+      "movies"
     ],
   },
   favoritePlaces: [
