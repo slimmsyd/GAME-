@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Heart, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, Sparkles, RefreshCw, Loader2 } from "lucide-react";
+import { BackgroundSlideshow } from "./background-slideshow";
 
 export function Hero() {
     const [showSuccess, setShowSuccess] = useState(false);
@@ -11,80 +12,59 @@ export function Hero() {
     const [noButtonPosition, setNoButtonPosition] = useState({ x: 0, y: 0 });
     const [hasBeenHovered, setHasBeenHovered] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    // Activity options for the slot machine
-    const activities = [
-        "getting sushi again",
-        "catching a movie at AMC",
-        "getting lunch somewhere new",
-        "getting breakfast at that spot",
-        "looking to smoke and chill",
-        "doing Netflix and vibes",
-        "hitting up Glenstone Museum",
-        "doing Jazz in DC",
-        "grabbing coffee downtown",
-        "checking out that new restaurant",
-    ];
+    // AI-generated activities state
+    const [activities, setActivities] = useState<string[]>([
+        "loading date ideas...",
+    ]);
+    const [isLoadingActivities, setIsLoadingActivities] = useState(true);
+    const [activitiesError, setActivitiesError] = useState<string | null>(null);
 
     const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
 
-    // Matrix rain effect
+    // Fetch AI-generated activities on mount
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops: number[] = [];
-
-        for (let i = 0; i < columns; i++) {
-            drops[i] = Math.random() * -100;
-        }
-
-        const matrix = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
-
-        function draw() {
-            if (!ctx || !canvas) return;
-
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#8b5cf6';
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = matrix[Math.floor(Math.random() * matrix.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-
-        const interval = setInterval(draw, 50);
-
-        const handleResize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('resize', handleResize);
-        };
+        fetchActivities();
     }, []);
+
+    const fetchActivities = async (refresh = false) => {
+        setIsLoadingActivities(true);
+        setActivitiesError(null);
+
+        try {
+            const url = refresh
+                ? "/api/generate-dates?refresh=true"
+                : "/api/generate-dates";
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch activities");
+            }
+
+            const data = await response.json();
+            setActivities(data.activities);
+            setCurrentActivityIndex(0);
+        } catch (error) {
+            console.error("Error fetching activities:", error);
+            setActivitiesError("Failed to load date ideas");
+            // Fallback to static activities
+            setActivities([
+                "getting sushi again",
+                "catching a movie at AMC",
+                "getting lunch somewhere new",
+                "hitting up Glenstone Museum",
+                "doing Jazz in DC",
+                "sip and paint with white wine",
+                "checking out that new restaurant",
+                "brunch at a DMV hotspot",
+                "live music on U Street",
+                "exploring The Wharf",
+            ]);
+        } finally {
+            setIsLoadingActivities(false);
+        }
+    };
 
     // Cycle through activities every 3 seconds (unless paused)
     useEffect(() => {
@@ -193,102 +173,139 @@ export function Hero() {
     }
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950 dark:via-pink-950 dark:to-blue-950">
-            {/* Matrix Rain Canvas */}
-            <canvas
-                ref={canvasRef}
-                className="absolute inset-0 opacity-30 dark:opacity-20"
-                style={{ pointerEvents: 'none' }}
-            />
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+            {/* Background Slideshow */}
+            <BackgroundSlideshow />
 
-            {/* Decorative Background */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute top-10 left-10 w-72 h-72 bg-purple-300/30 rounded-full blur-3xl" />
-                <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-300/30 rounded-full blur-3xl" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-300/20 rounded-full blur-3xl" />
-            </div>
-
-            <div className="container mx-auto px-4 z-10 relative">
+            <div className="container mx-auto px-4 z-10 relative h-screen flex flex-col justify-center items-center">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="max-w-3xl mx-auto text-center space-y-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                    className="w-full max-w-4xl mx-auto text-center space-y-12"
                 >
-                    <div className="flex justify-center">
-                        <img
-                            src="/ChooseGif.gif"
-                            alt="Choose animation"
-                            className="w-24 h-24 object-contain"
-                        />
+                    {/* Top Section - Small Vertical Text */}
+                    <div className="space-y-4 flex flex-col items-center">
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="mb-6"
+                        >
+                            <img
+                                src="/ChooseGif.gif"
+                                alt="Choose animation"
+                                className="w-20 h-20 object-contain opacity-80"
+                            />
+                        </motion.div>
+
+                        <h1 className="text-sm md:text-base font-bold text-white uppercase tracking-[0.3em] opacity-90">
+                            AI-Powered Decision Engine
+                        </h1>
+
+                        <p className="text-xs md:text-sm text-gray-400 uppercase tracking-widest font-light">
+                            I made a very advanced AI to determine our next hang out. It's very sophisticated mane
+                        </p>
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600">
-                        Specialized AI Decision Maker
-                    </h1>
+                    {/* Middle Section - Vertical Scrolling Credits */}
+                    <div className="py-12 relative h-[400px] flex items-center justify-center overflow-hidden mask-gradient">
+                        <div className="relative w-full flex flex-col items-center justify-center gap-8">
+                            {/* Previous Option (Faded) */}
+                            <motion.div
+                                key={`prev-${currentActivityIndex}`}
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 0.3, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                transition={{ duration: 0.5 }}
+                                className="text-sm md:text-base font-bold text-white uppercase tracking-wider absolute -top-16 pointer-events-none select-none"
+                            >
+                                {activities[(currentActivityIndex - 1 + activities.length) % activities.length]}
+                            </motion.div>
 
-                    <p className="text-lg md:text-xl text-muted-foreground">
-                        I made a very advanced AI to determine our next hang out. <br />
-                        It's incredibly sophisticated and uses cutting-edge technology.
-                    </p>
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3, duration: 0.5 }}
-                        className="bg-white/80 dark:bg-black/40 backdrop-blur-md rounded-3xl p-12 shadow-2xl border border-purple-200 dark:border-purple-800"
-                    >
-                        <div className="relative">
-                            <div className="text-3xl md:text-4xl font-semibold mb-12 h-24 flex items-center justify-center overflow-hidden">
-                                <span className="mr-2">Are we</span>
-                                <motion.span
+                            {/* Current Option (Highlighted) */}
+                            <AnimatePresence mode="popLayout">
+                                <motion.div
                                     key={currentActivityIndex}
-                                    initial={{ y: 50, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: -50, opacity: 0 }}
-                                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                                    className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 inline-block"
+                                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                                    className="z-10 py-4"
                                 >
-                                    {activities[currentActivityIndex]}
-                                </motion.span>
-                                <span className="ml-2">?</span>
-                            </div>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <span className="text-3xl md:text-5xl font-bold text-white uppercase tracking-wider leading-tight text-center max-w-3xl drop-shadow-2xl">
+                                            {activities[currentActivityIndex]}
+                                        </span>
+                                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/60">
+                                            Directed by AI
+                                        </span>
+                                    </div>
+                                </motion.div>
+                            </AnimatePresence>
 
+                            {/* Next Option (Faded) */}
+                            <motion.div
+                                key={`next-${currentActivityIndex}`}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 0.3, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="text-sm md:text-base font-bold text-white uppercase tracking-wider absolute -bottom-16 pointer-events-none select-none"
+                            >
+                                {activities[(currentActivityIndex + 1) % activities.length]}
+                            </motion.div>
+                        </div>
+
+                        {/* Navigation Controls (Side) */}
+                        <div className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-20">
+                            <button
+                                onClick={() => {
+                                    setCurrentActivityIndex((prev) => (prev - 1 + activities.length) % activities.length);
+                                }}
+                                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all border border-white/10 hover:border-white/30"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
+                            </button>
                             <button
                                 onClick={handleNextActivity}
-                                className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors flex items-center gap-1 group"
+                                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all border border-white/10 hover:border-white/30"
                             >
-                                <span className="opacity-70 group-hover:opacity-100">Try another</span>
-                                <svg
-                                    className="w-4 h-4 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                         </div>
+                    </div>
 
-                        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    {/* Bottom Section - Actions */}
+                    <div className="space-y-8">
+                        <div className="flex flex-col items-center gap-2">
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">
+                                Current Selection
+                            </p>
+                            <div className="w-8 h-[1px] bg-white/20" />
+                        </div>
+
+                        <div className="flex flex-row gap-8 justify-center items-center">
                             <Button
-                                size="lg"
                                 onClick={handleYesClick}
-                                className="text-xl px-12 py-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all text-white font-semibold"
+                                className="bg-transparent hover:bg-white/10 text-white border border-white/30 rounded-none px-8 py-6 text-xs uppercase tracking-[0.2em] transition-all hover:border-white"
                             >
-                                Yes! 💚
+                                Confirm
                             </Button>
 
                             {!hasBeenHovered ? (
                                 <Button
                                     ref={buttonRef}
-                                    size="lg"
-                                    variant="outline"
+                                    variant="ghost"
                                     onMouseEnter={handleNoHover}
                                     onTouchStart={handleNoHover}
-                                    className="text-xl px-12 py-8 rounded-full border-2 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 font-semibold cursor-pointer"
+                                    className="text-gray-500 hover:text-white hover:bg-transparent px-8 py-6 text-xs uppercase tracking-[0.2em] transition-colors"
                                 >
-                                    No 😢
+                                    Decline
                                 </Button>
                             ) : (
                                 <motion.div
@@ -307,29 +324,26 @@ export function Hero() {
                                     }}
                                 >
                                     <Button
-                                        size="lg"
-                                        variant="outline"
+                                        variant="ghost"
                                         onMouseEnter={handleNoHover}
                                         onTouchStart={handleNoHover}
-                                        className="text-xl px-12 py-8 rounded-full border-2 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 font-semibold cursor-pointer"
+                                        className="text-gray-500 hover:text-white hover:bg-transparent px-8 py-6 text-xs uppercase tracking-[0.2em] transition-colors"
                                     >
-                                        No 😢
+                                        Decline
                                     </Button>
                                 </motion.div>
                             )}
                         </div>
 
-                        {attempts > 0 && (
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="mt-8 text-sm text-muted-foreground italic"
-                            >
-                                Nice try... but you can't escape! 😏
-                                {attempts > 5 && " (Just give up already! 😂)"}
-                            </motion.p>
-                        )}
-                    </motion.div>
+                        {/* Refresh - Very Subtle */}
+                        <button
+                            onClick={() => fetchActivities(true)}
+                            disabled={isLoadingActivities}
+                            className="text-[10px] uppercase tracking-[0.2em] text-gray-600 hover:text-gray-400 transition-colors"
+                        >
+                            {isLoadingActivities ? "Generating..." : "Refresh List"}
+                        </button>
+                    </div>
                 </motion.div>
             </div>
         </section>
