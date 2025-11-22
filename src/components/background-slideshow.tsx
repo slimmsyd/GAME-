@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const images = [
     "/DatePhotos/MAINPHOTO.jpg",
+    "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (14).jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (1).jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (2).jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (3).jpeg",
@@ -16,7 +17,6 @@ const images = [
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (11).jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (12).jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (13).jpeg",
-    "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (14).jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.44.29 (15).jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.45.50.jpeg",
     "/DatePhotos/WhatsApp Image 2025-11-22 at 11.45.51 (1).jpeg",
